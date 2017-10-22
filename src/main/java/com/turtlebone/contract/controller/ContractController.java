@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.turtlebone.contract.bean.CreateContractRequest;
+import com.turtlebone.contract.common.ContractType;
 import com.turtlebone.contract.common.IActivityAction;
 import com.turtlebone.contract.common.IContractStatus;
 import com.turtlebone.contract.exception.ContractException;
@@ -58,7 +59,7 @@ public class ContractController {
 			validatRequest(request);
 		} catch (ContractException e) {
 			logger.error(e.getErrorMesage());
-			ResponseEntity.ok(e.getErrorMesage());
+			return ResponseEntity.ok(e.getErrorMesage());
 		};
 		
 		ContractModel contract = new ContractModel();
@@ -104,6 +105,8 @@ public class ContractController {
 			throw new ContractException("Missing content");
 		} else if (StringUtil.isEmpty(request.getType())) {
 			throw new ContractException("Missing contract type");
+		} else if (!validateContractType(request.getType())) {
+			throw new ContractException("Contract type not exist");
 		}
 		if (request.getPartyList() == null || request.getPartyList().size() == 0) {
 			throw new ContractException("PartyList is empty");
@@ -113,5 +116,13 @@ public class ContractController {
 			throw new ContractException("Some user not exist");
 		}
 		return true;
+	}
+	private boolean validateContractType(String type) {
+		for (ContractType ct : ContractType.values()) {
+			if (ct.name().equals(type)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

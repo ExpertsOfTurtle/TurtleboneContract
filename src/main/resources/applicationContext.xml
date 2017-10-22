@@ -42,8 +42,8 @@
     	<property name="validationMessageSource" ref="messageSource"/>
     </bean>
 
-	<context:component-scan base-package="com.turtlebone.core.**.repository" />
-	<context:component-scan base-package="com.turtlebone.core.**.service" />
+	<context:component-scan base-package="com.turtlebone.contract.**.repository" />
+	<context:component-scan base-package="com.turtlebone.contract.**.service" />
 	
 	<context:annotation-config />
 	
@@ -54,15 +54,15 @@
 	</bean>
 
 	<bean id="myBatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="turtlebone-coreDataSource" />
+		<property name="dataSource" ref="turtlebone-contractDataSource" />
 		<property name="mapperLocations" value="classpath*:mapper/*Mapper.xml" />
 	</bean>
 
 	<bean id="transactionManager" class="com.vip.venus.data.datasource.SmartDataSourceTransactionManager">
-		<property name="dataSource" ref="turtlebone-coreDataSource" />
+		<property name="dataSource" ref="turtlebone-contractDataSource" />
 	</bean>
 	
-	<venus-datasource:matrix-datasource matrix-name="turtlebone-coreDataSource">
+	<venus-datasource:matrix-datasource matrix-name="turtlebone-contractDataSource">
 	   <!-- Please config database Connection Pool's parameters ，here take druid as an example: -->
 	   <venus-datasource:pool-configs pool-type="druid">
             <venus-datasource:pool-config atom-names="*">

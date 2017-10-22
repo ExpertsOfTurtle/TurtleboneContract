@@ -70,6 +70,9 @@ public class DateUtil {
 		return getSdf(pattern).parse(dateStr);
 	}
 	public static Date parse(String dateStr) {
+		if (dateStr == null) {
+			return null;
+		}
 		for (String pattern : PATTER_LIST) {
 			if (dateStr.trim().length() == pattern.length()) {
 				try {

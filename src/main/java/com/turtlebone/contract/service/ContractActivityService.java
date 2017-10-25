@@ -17,8 +17,8 @@ public interface ContractActivityService{
 	public int updateByPrimaryKeySelective(ContractActivityModel contractActivityModel);
 	
 	public int deleteByPrimaryKey(Integer id);
-	
 
 	public int selectCount(ContractActivityModel contractActivityModel);
-	
+
+	public ContractActivityModel selectSignActivity(Integer contrarctId, String username);
 }

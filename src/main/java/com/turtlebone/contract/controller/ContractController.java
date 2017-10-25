@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.turtlebone.contract.bean.CreateContractRequest;
+import com.turtlebone.contract.bean.SignContractRequest;
 import com.turtlebone.contract.common.ContractType;
 import com.turtlebone.contract.common.IActivityAction;
 import com.turtlebone.contract.common.IContractStatus;
+import com.turtlebone.contract.common.ISignType;
 import com.turtlebone.contract.exception.ContractException;
 import com.turtlebone.contract.model.ContractActivityModel;
 import com.turtlebone.contract.model.ContractModel;
@@ -56,7 +58,7 @@ public class ContractController {
 		logger.info("Creating contract by [{}]: title=[{}]", request.getCreator(), request.getTitle());
 		
 		try {
-			validatRequest(request);
+			validatCreateRequest(request);
 		} catch (ContractException e) {
 			logger.error(e.getErrorMesage());
 			return ResponseEntity.ok(e.getErrorMesage());
@@ -96,7 +98,52 @@ public class ContractController {
 		return ResponseEntity.ok(contract);
 	}
 	
-	private boolean validatRequest(CreateContractRequest request) throws ContractException{
+	@RequestMapping(value="/sign", method = RequestMethod.POST)
+	public @ResponseBody ResponseEntity<?> sign(@RequestBody SignContractRequest request) {
+		try {
+			validateSignRequest(request);
+		} catch (ContractException e) {
+			logger.error(e.getErrorMesage());
+			return ResponseEntity.ok(e.getErrorMesage());
+		}
+		Integer contractId = request.getContractId();
+		ContractModel contract = contractService.findByPrimaryKey(contractId);
+		if (contract == null) {
+			logger.error("Contract[id={}] not exitst", contractId);
+			return ResponseEntity.ok("Contract not exitst");
+		}
+		
+		//判断状态是不是PENDING，如果是才可以进行Accept或者Decline操作
+		short status = contract.getContractStatus();
+		if (status != IContractStatus.PENDING) {
+			logger.error("Contract[id={}] is not in PENDING status", contractId);
+			return ResponseEntity.ok("Contract is not int PENDING status!");
+		}
+		
+		ContractActivityModel activity = activityService.selectSignActivity(contractId, request.getUsername());
+		if (activity == null) {
+			logger.error("user[{}] not have authority on contract[{}]", request.getUsername(), contractId);
+			return ResponseEntity.ok("Not authority on accepting/declining contract");
+		}
+		int action = activity.getAction();
+		if (action != IActivityAction.PENDING) {
+			logger.error("User[{}] has already taken action on contract[{}]", request.getUsername(), contractId);
+			return ResponseEntity.ok("User has taken action on contract before");
+		}
+		if ("ACCEPT".equalsIgnoreCase(request.getActionType())) {
+			activity.setAction(IActivityAction.ACCEPT);
+		} else if ("DECLINE".equalsIgnoreCase(request.getActionType())) {
+			activity.setAction(IActivityAction.DECLINE);
+		} else {
+			logger.error("No such action {}", request.getActionType());
+			return ResponseEntity.ok("No such action");
+		}
+		activityService.updateByPrimaryKeySelective(activity);
+		
+		return ResponseEntity.ok(activity);
+	}
+	
+	private boolean validatCreateRequest(CreateContractRequest request) throws ContractException{
 		if (StringUtil.isEmpty(request.getCreator())) {
 			throw new ContractException("Missing creator");
 		} else if (StringUtil.isEmpty(request.getTitle())) {
@@ -114,6 +161,22 @@ public class ContractController {
 		List<UserModel> userList = userService.selectByUserList(request.getPartyList());
 		if (userList.size() != request.getPartyList().size()) {
 			throw new ContractException("Some user not exist");
+		}
+		return true;
+	}
+	private boolean validateSignRequest(SignContractRequest request) throws ContractException {
+		if (request.getContractId() == null) {
+			throw new ContractException("Missing contractId");
+		}
+		if (request.getUsername() == null) {
+			throw new ContractException("Missing username");
+		}
+		if (request.getActionType() == null) {
+			throw new ContractException("Missing actionType");
+		}
+		if (!ISignType.ACCEPT.equals(request.getActionType()) && 
+			!ISignType.DECLINE.equals(request.getActionType())) {
+			throw new ContractException("Incorrect actionType");
 		}
 		return true;
 	}

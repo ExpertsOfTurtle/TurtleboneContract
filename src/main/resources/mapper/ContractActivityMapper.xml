@@ -175,6 +175,14 @@
       limit ${pageable.offset}, ${pageable.pageSize}
     </if>
   </select>
+  
+  <select id="selectSignActivity" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from contract_activity
+    where contactid = #{contactid,jdbcType=INTEGER}
+    and username = #{username,jdbcType=VARCHAR} limit 1
+  </select>
  </mapper>
   
 

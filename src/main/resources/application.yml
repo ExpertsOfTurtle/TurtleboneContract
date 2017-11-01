@@ -3,8 +3,8 @@ spring:
   datasource:
     type: org.apache.commons.dbcp2.BasicDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://www.turtlebone.top:3306/turtle?allowMultiQueries=true
-    username: mysql
+    url: jdbc:mysql://127.0.0.1:3306/turtle?allowMultiQueries=true
+    username: root
     password: mysql
     initialSize: 10
     minIdle: 5

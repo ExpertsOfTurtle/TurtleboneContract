@@ -1,6 +1,8 @@
 
 package com.turtlebone.contract.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,6 +95,13 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public int selectCount(ContractModel contractModel) {
 		return contractRepo.selectCount(BeanCopyUtils.map(contractModel, Contract.class));
+	}
+
+
+	@Override
+	public List<ContractModel> selectAll() {
+		List<Contract> list = contractRepo.selectAll();
+		return BeanCopyUtils.mapList(list, ContractModel.class);
 	}
 
 

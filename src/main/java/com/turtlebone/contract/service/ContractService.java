@@ -3,6 +3,7 @@ package com.turtlebone.contract.service;
 
 import com.turtlebone.contract.model.ContractModel;
 import java.util.Date;
+import java.util.List;
 
 public interface ContractService{
 	
@@ -20,5 +21,6 @@ public interface ContractService{
 	
 
 	public int selectCount(ContractModel contractModel);
-	
+
+	public List<ContractModel> selectAll();
 }

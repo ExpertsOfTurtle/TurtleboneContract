@@ -18,9 +18,10 @@ public class DemoFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2)
+	public void doFilter(ServletRequest req, ServletResponse rsp, FilterChain filterChain)
 			throws IOException, ServletException {
 		System.out.println("DFS!!!");
+		filterChain.doFilter(req, rsp);
 	}
 
 	@Override

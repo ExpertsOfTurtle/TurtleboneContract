@@ -73,6 +73,7 @@ public class ContractController {
 		contract.setContractType(request.getType());
 		contract.setContractStatus(IContractStatus.PENDING);
 		contract.setContractNo(UUIDUtil.generateId(6));
+		contract.setContractParty("");
 		Date effectiveDate = DateUtil.parse(request.getEffectiveDate());
 		Date expiredDate = DateUtil.parse(request.getExpiredDate());
 		if (effectiveDate == null) {
@@ -143,6 +144,20 @@ public class ContractController {
 		return ResponseEntity.ok(activity);
 	}
 	
+	@RequestMapping(value = "/list")
+	public String listAll(Map<String, Object> model) {
+		List<ContractModel> list = contractService.selectAll();
+		model.put("list", list);
+		return "contract/ajax/list";
+	}
+	
+	@RequestMapping(value = "/detail/{id}")
+	public String viewDetails(Map<String, Object> model, @PathVariable("id") Integer id) {
+		ContractModel detail = contractService.findByPrimaryKey(id);
+		model.put("detail", detail);
+		return "contract/ajax/detail";
+	}
+	
 	private boolean validatCreateRequest(CreateContractRequest request) throws ContractException{
 		if (StringUtil.isEmpty(request.getCreator())) {
 			throw new ContractException("Missing creator");
@@ -174,8 +189,8 @@ public class ContractController {
 		if (request.getActionType() == null) {
 			throw new ContractException("Missing actionType");
 		}
-		if (!ISignType.ACCEPT.equals(request.getActionType()) && 
-			!ISignType.DECLINE.equals(request.getActionType())) {
+		if (!ISignType.ACCEPT.equalsIgnoreCase(request.getActionType()) && 
+			!ISignType.DECLINE.equalsIgnoreCase(request.getActionType())) {
 			throw new ContractException("Incorrect actionType");
 		}
 		return true;

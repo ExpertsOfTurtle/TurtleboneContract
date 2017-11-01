@@ -180,7 +180,7 @@
     select 
     <include refid="Base_Column_List" />
     from contract_activity
-    where contactid = #{contactid,jdbcType=INTEGER}
+    where contactid = #{contractid,jdbcType=INTEGER}
     and username = #{username,jdbcType=VARCHAR} limit 1
   </select>
  </mapper>

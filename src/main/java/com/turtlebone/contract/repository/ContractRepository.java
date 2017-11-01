@@ -27,4 +27,5 @@ public interface ContractRepository{
 
     List<Contract> selectPage(@Param("contract") Contract contract, @Param("pageable") Pageable pageable);
 	
+    List<Contract> selectAll();
 }

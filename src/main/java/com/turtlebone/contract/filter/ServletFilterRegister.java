@@ -15,8 +15,12 @@ public class ServletFilterRegister {
 
 	@Bean
 	public FilterRegistrationBean registrationAuthenticationFilter() throws ServletException {
-		DemoFilter authenticationFilter = new DemoFilter();
+		SecurityFilter authenticationFilter = new SecurityFilter();
+		authenticationFilter.setEnv(env);
+		
 		FilterRegistrationBean registration = new FilterRegistrationBean(authenticationFilter);
+		registration.addUrlPatterns("/contract/*");
+		registration.addInitParameter("excludeRegex", "/contract/list|/contract/sign");
 		registration.setOrder(1);
 
 		return registration;

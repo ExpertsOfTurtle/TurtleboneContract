@@ -30,4 +30,6 @@ public interface ContractActivityRepository{
     List<ContractActivity> selectPage(@Param("contractActivity") ContractActivity contractActivity, @Param("pageable") Pageable pageable);
 
     ContractActivity selectSignActivity(Map<String, Object> map);
+    
+    List<ContractActivity> selectBulkSignActivity(Map<String, Object> map);
 }

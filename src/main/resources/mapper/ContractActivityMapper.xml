@@ -183,6 +183,18 @@
     where contactid = #{contractid,jdbcType=INTEGER}
     and username = #{username,jdbcType=VARCHAR} limit 1
   </select>
+  
+  <select id="selectBulkSignActivity" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from contract_activity where 1 = 1
+    <if test="contactid != null" >
+      and `contactId` = #{contactid,jdbcType=INTEGER}
+    </if>
+    <if test="username != null" >
+      and `username` = #{username,jdbcType=VARCHAR}
+    </if>
+  </select>
  </mapper>
   
 

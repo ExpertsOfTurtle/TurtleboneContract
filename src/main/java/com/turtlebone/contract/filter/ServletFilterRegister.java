@@ -20,7 +20,7 @@ public class ServletFilterRegister {
 		
 		FilterRegistrationBean registration = new FilterRegistrationBean(authenticationFilter);
 		registration.addUrlPatterns("/contract/*");
-		registration.addInitParameter("excludeRegex", "/contract/list|/contract/sign");
+		registration.addInitParameter("excludeRegex", "/contract/list|/contract/detail");
 		registration.setOrder(1);
 
 		return registration;

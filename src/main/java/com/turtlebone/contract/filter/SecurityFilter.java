@@ -21,6 +21,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.alibaba.fastjson.JSON;
+import com.turtlebone.contract.bean.ResultVO;
+import com.turtlebone.contract.util.StringUtil;
 
 import lombok.Data;
 
@@ -53,6 +56,12 @@ public class SecurityFilter implements Filter {
 		
 		String tokenId = request.getParameter("tokenId");
 		logger.info("tokenId={}", tokenId);
+		
+		if (StringUtil.isEmpty(tokenId)) {
+			rsp.setContentType("application/json");
+			rsp.getWriter().print(JSON.toJSONString(new ResultVO<String>(ResultVO.PARAMERROR, "tokenId is empty", "")));
+			return;
+		}
 		
 		filterChain.doFilter(req, rsp);
 	}

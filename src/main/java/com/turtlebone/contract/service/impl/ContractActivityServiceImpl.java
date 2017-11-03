@@ -2,6 +2,7 @@
 package com.turtlebone.contract.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +102,16 @@ public class ContractActivityServiceImpl implements ContractActivityService {
 		map.put("contractid", contrarctId);
 		map.put("username", username);
 		return BeanCopyUtils.map(contractActivityRepo.selectSignActivity(map), ContractActivityModel.class);
+	}
+
+
+	@Override
+	public List<ContractActivityModel> selectBulkSignActivity(Integer contrarctId, String username) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("contractid", contrarctId);
+		map.put("username", username);
+		List<ContractActivity> list = contractActivityRepo.selectBulkSignActivity(map);
+		return BeanCopyUtils.mapList(list, ContractActivityModel.class);
 	}
 
 

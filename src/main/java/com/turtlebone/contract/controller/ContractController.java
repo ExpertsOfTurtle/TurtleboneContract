@@ -139,6 +139,15 @@ public class ContractController {
 			logger.error("No such action {}", request.getActionType());
 			return ResponseEntity.ok("No such action");
 		}
+		
+		//Update contract status
+		List<ContractActivityModel> caList = activityService.selectBulkSignActivity(contractId, null);
+		short contractStatus = getContractStatus(caList);
+		if (contract.getContractStatus().shortValue() != contractStatus) {
+			contract.setContractStatus(contractStatus);
+			contractService.updateByPrimaryKey(contract);
+		}
+		
 		activityService.updateByPrimaryKeySelective(activity);
 		
 		return ResponseEntity.ok(activity);
@@ -202,5 +211,28 @@ public class ContractController {
 			}
 		}
 		return false;
+	}
+	private short getContractStatus(List<ContractActivityModel> caList) {
+		if (caList == null || caList.size() == 0) {
+			logger.warn("caList is empty!");
+			return IContractStatus.CANCEL;
+		}
+		boolean hasPending = false;
+		boolean hasReject = false;
+		for (ContractActivityModel ca : caList) {
+			if (ca.getAction().intValue() == IActivityAction.PENDING) {
+				hasPending = true;
+			} else if (ca.getAction().intValue() == IActivityAction.DECLINE) {
+				hasReject = true;
+				break;
+			}
+		}
+		if (hasReject) {
+			return IContractStatus.REJECTED;
+		} else if (hasPending) {
+			return IContractStatus.PENDING;
+		} else {
+			return IContractStatus.SIGNED;
+		}
 	}
 }

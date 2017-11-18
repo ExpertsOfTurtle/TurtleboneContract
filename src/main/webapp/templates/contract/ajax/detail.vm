@@ -15,6 +15,10 @@
 				<p>Status:${detail.contractStatus}</p>						
 				<p>${detail.contractContent}</p>
 			</div>
+			<div role="main" class="ui-content">
+				<input type="button" data-inline="true" value="Accept" onclick="doSign(${detail.id},'Accept');"></input>
+				<input type="button" data-inline="true" value="Decline" onclick="doSign(${detail.id},'Decline');"></input>
+			</div>
 		</div>
 		<!-- /page -->
 		

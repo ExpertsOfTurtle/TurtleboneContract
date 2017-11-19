@@ -160,11 +160,18 @@ public class ContractController {
 		return "contract/ajax/list";
 	}
 	
-	@RequestMapping(value = "/detail/{id}")
+	@RequestMapping(value = "/details/{id}")
 	public String viewDetails(Map<String, Object> model, @PathVariable("id") Integer id) {
 		ContractModel detail = contractService.findByPrimaryKey(id);
 		model.put("detail", detail);
-		return "contract/ajax/detail";
+		return "contract/ajax/details";
+	}
+	
+	@RequestMapping(value = "/editDetail/{id}")
+	public String viewDetailsForEdit(Map<String, Object> model, @PathVariable("id") Integer id) {
+		ContractModel detail = contractService.findByPrimaryKey(id);
+		model.put("detail", detail);
+		return "contract/ajax/edit";
 	}
 	
 	private boolean validatCreateRequest(CreateContractRequest request) throws ContractException{

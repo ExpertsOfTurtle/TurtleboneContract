@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.turtlebone.contract.bean.CreateContractRequest;
+import com.turtlebone.contract.bean.ModifyContractRequest;
 import com.turtlebone.contract.bean.SignContractRequest;
 import com.turtlebone.contract.common.ContractType;
 import com.turtlebone.contract.common.IActivityAction;
@@ -96,6 +97,63 @@ public class ContractController {
 		}
 		
 		logger.info("Contract[{}] created, id={}", contract.getContractNo(), contractId);
+		return ResponseEntity.ok(contract);
+	}
+	
+	@RequestMapping(value="/modify", method = RequestMethod.POST)
+	public @ResponseBody ResponseEntity<?> modifyContract(@RequestBody ModifyContractRequest request) {
+		logger.info("Modify contract by: title=[{}]", request.getTitle());
+		
+		Integer id = request.getContractId();
+		ContractModel contract = contractService.findByPrimaryKey(id);
+		if (contract == null) {
+			logger.error("no such contract id:{}", id);
+			return ResponseEntity.ok("contract id not exist");
+		}
+		if (!request.getUsername().equals(contract.getCreateBy())) {
+			logger.error("This contract [{}] is not created by you!", id);
+			return ResponseEntity.ok("Contract can be modified by creator only");
+		}
+		
+		//如果其他人已经进行了操作，那么不允许修改
+		ContractActivityModel myActivity = null;
+		List<ContractActivityModel> list = activityService.selectBulkSignActivity(id, null);
+		for (ContractActivityModel act : list) {
+			if (act.getAction() != IActivityAction.PENDING && 
+				!request.getUsername().equals(act.getUsername())) {
+				logger.error("Contract[{}] has been taken action by {}", id, act.getUsername());
+				return ResponseEntity.ok("contract has been signed/rejected"); 
+			}
+			if (request.getUsername().equals(act.getUsername())) {
+				myActivity = act;
+			}
+		}
+		
+		if (contract.getContractStatus() != IContractStatus.PENDING) {
+			logger.error("Contract status is not pending, not allow to modify");
+			return ResponseEntity.ok("Contract status is not pending, not allow to modify");
+		}
+		
+		//重新更新自己的状态为pending
+		if (myActivity != null && myActivity.getAction() != IActivityAction.PENDING) {
+			myActivity.setAction(IActivityAction.PENDING);
+			activityService.updateByPrimaryKey(myActivity);
+		}
+		
+		contract.setContractContent(request.getContent());
+		contract.setContractName(request.getTitle());
+		Date effectiveDate = DateUtil.parse(request.getEffectiveDate());
+		Date expiredDate = DateUtil.parse(request.getExpiredDate());
+		if (effectiveDate != null) {
+			contract.setEffectiveDate(effectiveDate);	
+		}
+		if (expiredDate != null) {
+			contract.setExpiredDate(expiredDate);	
+		}		
+		
+		contractService.updateByPrimaryKey(contract);
+		
+		logger.info("Contract[{}] modified, id={}", contract.getContractNo(), id);
 		return ResponseEntity.ok(contract);
 	}
 	
